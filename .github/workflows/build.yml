@@ -1,0 +1,61 @@
+name: Build Application
+
+on:
+  push:
+    tags:
+      - 'v*'  # 当推送 v1.0.0 这样的标签时触发
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]  # 同时打包Windows和macOS
+        
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller requests python-docx
+        
+    - name: Build with PyInstaller (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        pyinstaller --onefile --noconsole --name "Bidirectional Translator v1.0.0" translation_app.py
+        
+    - name: Build with PyInstaller (macOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        pyinstaller --onefile --windowed --name "Bidirectional Translator v1.0.0" translation_app.py
+        
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Bidirectional-Translator-${{ matrix.os }}
+        path: dist/*
+
+  create-release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: dist
+        
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: dist/**/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
