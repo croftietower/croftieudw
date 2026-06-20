@@ -445,22 +445,25 @@ class TranslationApp:
             return
         
         detected_lang = detect_language(text)
+        is_prompt_mode = self.translation_mode_var.get() == "Translate with Prompt"
         
         if detected_lang == "zh":
             self.source_lang = "zh"
             self.target_lang = "en"
             self.left_frame.config(text="Source Text (Chinese)")
             self.right_frame.config(text="Target Text (English)")
-            self.prompt_text.delete(1.0, tk.END)
-            self.prompt_text.insert(tk.END, "You are a professional translation expert. Please translate the following Chinese text into English, maintaining the style and meaning of the original.")
+            if not is_prompt_mode:
+                self.prompt_text.delete(1.0, tk.END)
+                self.prompt_text.insert(tk.END, "You are a professional translation expert. Please translate the following Chinese text into English, maintaining the style and meaning of the original.")
             self.status_bar.config(text="Detected: Chinese → English")
         else:
             self.source_lang = "en"
             self.target_lang = "zh"
             self.left_frame.config(text="Source Text (English)")
             self.right_frame.config(text="Target Text (Chinese)")
-            self.prompt_text.delete(1.0, tk.END)
-            self.prompt_text.insert(tk.END, "你是一个专业的翻译专家，请将以下英文文本翻译成中文，保持原文的风格和语义。")
+            if not is_prompt_mode:
+                self.prompt_text.delete(1.0, tk.END)
+                self.prompt_text.insert(tk.END, "你是一个专业的翻译专家，请将以下英文文本翻译成中文，保持原文的风格和语义。")
             self.status_bar.config(text="Detected: English → Chinese")
     
     def open_file(self):
