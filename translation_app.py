@@ -530,8 +530,11 @@ class TranslationApp:
         
         mode = self.translation_mode_var.get()
         self.system_prompt = None
+        print(f"[DEBUG] Mode selected: '{mode}'")
+        print(f"[DEBUG] Mode == 'Translate with Prompt': {mode == 'Translate with Prompt'}")
         if mode == "Translate with Prompt":
             self.system_prompt = self.prompt_text.get(1.0, tk.END).strip()
+            print(f"[DEBUG] System prompt: {self.system_prompt[:100]}...")
             if not self.system_prompt:
                 messagebox.showwarning("Warning", "Please enter custom translation prompt")
                 return
